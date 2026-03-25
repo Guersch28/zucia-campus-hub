@@ -2,53 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
-    --background: 120 5% 96%;
-    --foreground: 150 30% 10%;
+    --background: 100 8% 97%;
+    --foreground: 156 25% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 150 30% 10%;
+    --card-foreground: 156 25% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 150 30% 10%;
-    --primary: 140 55% 23%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 38 90% 55%;
-    --secondary-foreground: 150 30% 10%;
-    --muted: 120 5% 92%;
-    --muted-foreground: 150 10% 45%;
-    --accent: 38 90% 55%;
-    --accent-foreground: 150 30% 10%;
-    --destructive: 0 84% 60%;
+    --popover-foreground: 156 25% 12%;
+    --primary: 145 62% 24%;
+    --primary-foreground: 48 100% 96%;
+    --secondary: 42 92% 56%;
+    --secondary-foreground: 42 80% 14%;
+    --muted: 100 8% 93%;
+    --muted-foreground: 156 10% 46%;
+    --accent: 42 92% 56%;
+    --accent-foreground: 42 80% 14%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 120 8% 85%;
-    --input: 120 8% 85%;
-    --ring: 140 55% 23%;
-    --radius: 0.625rem;
+    --border: 156 12% 88%;
+    --input: 156 12% 85%;
+    --ring: 145 62% 24%;
+    --radius: 0.75rem;
 
-    --zcu-green: 140 55% 23%;
-    --zcu-green-dark: 140 60% 16%;
-    --zcu-green-light: 140 40% 35%;
-    --zcu-gold: 38 90% 55%;
-    --zcu-gold-light: 38 85% 70%;
-    --zcu-gold-dark: 38 90% 42%;
+    --zcu-green: 145 62% 24%;
+    --zcu-green-dark: 148 68% 14%;
+    --zcu-green-light: 142 45% 38%;
+    --zcu-green-muted: 145 30% 92%;
+    --zcu-gold: 42 92% 56%;
+    --zcu-gold-light: 42 88% 72%;
+    --zcu-gold-dark: 38 88% 42%;
+    --zcu-gold-muted: 42 60% 94%;
 
-    --year-1: 210 80% 55%;
-    --year-2: 270 60% 55%;
-    --year-3: 30 90% 55%;
-    --year-4: 0 75% 55%;
-    --sem-1: 175 60% 42%;
-    --sem-2: 330 65% 55%;
+    --year-1: 215 85% 55%;
+    --year-2: 262 65% 58%;
+    --year-3: 32 92% 52%;
+    --year-4: 0 78% 55%;
+    --sem-1: 172 62% 38%;
+    --sem-2: 335 68% 54%;
 
-    --sidebar-background: 140 55% 18%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 38 90% 55%;
-    --sidebar-primary-foreground: 150 30% 10%;
-    --sidebar-accent: 140 50% 25%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 140 40% 25%;
-    --sidebar-ring: 38 90% 55%;
+    --sidebar-background: 148 68% 12%;
+    --sidebar-foreground: 42 40% 92%;
+    --sidebar-primary: 42 92% 56%;
+    --sidebar-primary-foreground: 148 68% 12%;
+    --sidebar-accent: 145 50% 20%;
+    --sidebar-accent-foreground: 42 40% 96%;
+    --sidebar-border: 148 40% 20%;
+    --sidebar-ring: 42 92% 56%;
   }
 }
 
@@ -57,48 +59,63 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
-    font-family: 'Source Sans 3', system-ui, sans-serif;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Merriweather', serif;
+    font-family: 'Playfair Display', serif;
+    letter-spacing: -0.01em;
   }
 }
 
 @layer components {
   .zcu-gradient {
-    background: linear-gradient(135deg, hsl(var(--zcu-green)) 0%, hsl(var(--zcu-green-dark)) 100%);
+    background: linear-gradient(145deg, hsl(145 62% 24%) 0%, hsl(148 68% 14%) 60%, hsl(145 50% 20%) 100%);
   }
   .zcu-gold-gradient {
-    background: linear-gradient(135deg, hsl(var(--zcu-gold)) 0%, hsl(var(--zcu-gold-dark)) 100%);
+    background: linear-gradient(135deg, hsl(42 92% 56%) 0%, hsl(38 88% 42%) 100%);
+  }
+  .zcu-hero-gradient {
+    background: linear-gradient(160deg, hsl(148 68% 12%) 0%, hsl(145 62% 24%) 40%, hsl(142 45% 38%) 100%);
   }
   .zcu-card-hover {
-    @apply transition-all duration-300;
+    @apply transition-all duration-300 ease-out;
   }
   .zcu-card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px -8px hsl(var(--zcu-green) / 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px -12px hsl(145 62% 24% / 0.18), 0 4px 12px -4px hsl(0 0% 0% / 0.06);
   }
+
+  .glass-card {
+    background: hsl(0 0% 100% / 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid hsl(0 0% 100% / 0.6);
+  }
+
   .chat-bubble-user {
-    @apply rounded-2xl rounded-br-sm px-4 py-3;
-    background: hsl(var(--zcu-green));
-    color: white;
+    @apply rounded-2xl rounded-br-md px-4 py-3;
+    background: linear-gradient(135deg, hsl(145 62% 24%), hsl(148 68% 14%));
+    color: hsl(48 100% 96%);
+    box-shadow: 0 2px 8px -2px hsl(145 62% 24% / 0.3);
   }
   .chat-bubble-bot {
-    @apply rounded-2xl rounded-bl-sm px-4 py-3 shadow-md;
-    background: white;
-    color: hsl(var(--foreground));
+    @apply rounded-2xl rounded-bl-md px-4 py-3;
+    background: hsl(0 0% 100%);
+    color: hsl(156 25% 12%);
+    box-shadow: 0 2px 12px -4px hsl(0 0% 0% / 0.08);
+    border: 1px solid hsl(156 12% 92%);
   }
-  .badge-year-1 { background: hsl(var(--year-1) / 0.15); color: hsl(var(--year-1)); }
-  .badge-year-2 { background: hsl(var(--year-2) / 0.15); color: hsl(var(--year-2)); }
-  .badge-year-3 { background: hsl(var(--year-3) / 0.15); color: hsl(var(--year-3)); }
-  .badge-year-4 { background: hsl(var(--year-4) / 0.15); color: hsl(var(--year-4)); }
-  .badge-sem-1 { background: hsl(var(--sem-1) / 0.15); color: hsl(var(--sem-1)); }
-  .badge-sem-2 { background: hsl(var(--sem-2) / 0.15); color: hsl(var(--sem-2)); }
+
+  .badge-year-1 { background: hsl(215 85% 55% / 0.12); color: hsl(215 85% 45%); font-weight: 600; }
+  .badge-year-2 { background: hsl(262 65% 58% / 0.12); color: hsl(262 65% 48%); font-weight: 600; }
+  .badge-year-3 { background: hsl(32 92% 52% / 0.12); color: hsl(32 92% 40%); font-weight: 600; }
+  .badge-year-4 { background: hsl(0 78% 55% / 0.12); color: hsl(0 78% 45%); font-weight: 600; }
+  .badge-sem-1 { background: hsl(172 62% 38% / 0.12); color: hsl(172 62% 30%); font-weight: 600; }
+  .badge-sem-2 { background: hsl(335 68% 54% / 0.12); color: hsl(335 68% 44%); font-weight: 600; }
 
   .typing-dot {
     @apply w-2 h-2 rounded-full;
-    background: hsl(var(--zcu-green));
+    background: hsl(145 62% 24%);
     animation: typingBounce 1.4s infinite ease-in-out;
   }
   .typing-dot:nth-child(1) { animation-delay: 0s; }
@@ -115,6 +132,24 @@
     100% { transform: translateX(-100%); }
   }
   .ticker-animate {
-    animation: ticker 20s linear infinite;
+    animation: ticker 25s linear infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer {
+    background: linear-gradient(90deg, hsl(156 12% 88%) 25%, hsl(156 12% 94%) 50%, hsl(156 12% 88%) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+  .float-animation {
+    animation: float 3s ease-in-out infinite;
   }
 }
