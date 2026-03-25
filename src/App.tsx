@@ -1,10 +1,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Index from "./pages/Index.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import LoginPage from "@/pages/LoginPage";
+import StudentDashboard from "@/pages/StudentDashboard";
+import LecturerDashboard from "@/pages/LecturerDashboard";
+import ChatbotPage from "@/pages/ChatbotPage";
+import ProtectedLayout from "@/components/ProtectedLayout";
+import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -12,11 +15,23 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+
+          <Route element={<ProtectedLayout allowedRole="student" />}>
+            <Route path="/student" element={<StudentDashboard />} />
+          </Route>
+
+          <Route element={<ProtectedLayout allowedRole="lecturer" />}>
+            <Route path="/lecturer" element={<LecturerDashboard />} />
+          </Route>
+
+          <Route element={<ProtectedLayout />}>
+            <Route path="/chatbot" element={<ChatbotPage />} />
+          </Route>
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
