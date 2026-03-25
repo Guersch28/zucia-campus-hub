@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  Home, BookOpen, MessageCircle, Database, LogOut, Menu, X, GraduationCap, UserCog,
+  Home, BookOpen, MessageCircle, LogOut, Menu, X, GraduationCap, UserCog,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -25,31 +25,34 @@ const Sidebar = () => {
   const nav = (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="p-5 border-b border-sidebar-border">
+      <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-sidebar-primary flex items-center justify-center">
+          <div className="w-11 h-11 rounded-xl bg-sidebar-primary flex items-center justify-center shadow-lg shadow-sidebar-primary/30">
             <span className="text-sm font-serif font-bold text-sidebar-primary-foreground">ZCU</span>
           </div>
           <div>
-            <h2 className="font-serif font-bold text-sidebar-foreground text-sm">ZUCIA</h2>
-            <p className="text-[10px] text-sidebar-foreground/60 italic">Veritas et Lux</p>
+            <h2 className="font-serif font-bold text-sidebar-foreground text-sm tracking-tight">ZUCIA</h2>
+            <p className="text-[10px] text-sidebar-foreground/50 italic font-serif">Veritas et Lux</p>
           </div>
         </div>
       </div>
 
       {/* Role Badge */}
-      <div className="px-5 py-3">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-sidebar-accent">
-          {isStudent ? <GraduationCap className="w-4 h-4 text-sidebar-primary" /> : <UserCog className="w-4 h-4 text-sidebar-primary" />}
+      <div className="px-4 py-4">
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-sidebar-accent/60 border border-sidebar-border">
+          {isStudent
+            ? <GraduationCap className="w-5 h-5 text-sidebar-primary" />
+            : <UserCog className="w-5 h-5 text-sidebar-primary" />
+          }
           <div>
-            <p className="text-xs font-medium text-sidebar-accent-foreground">{user?.username}</p>
-            <p className="text-[10px] text-sidebar-foreground/60 capitalize">{user?.role}</p>
+            <p className="text-sm font-semibold text-sidebar-accent-foreground capitalize">{user?.username}</p>
+            <p className="text-[10px] text-sidebar-foreground/50 capitalize">{user?.role}</p>
           </div>
         </div>
       </div>
 
       {/* Nav Links */}
-      <nav className="flex-1 px-3 space-y-1">
+      <nav className="flex-1 px-3 space-y-1 mt-2">
         {links.map((link) => {
           const active = location.pathname === link.to;
           return (
@@ -57,13 +60,13 @@ const Sidebar = () => {
               key={link.to}
               to={link.to}
               onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                 active
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-3 border-sidebar-primary"
-                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md shadow-sidebar-primary/25"
+                  : "text-sidebar-foreground/65 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
               }`}
             >
-              <link.icon className="w-4 h-4" />
+              <link.icon className="w-[18px] h-[18px]" />
               {link.label}
             </Link>
           );
@@ -71,12 +74,12 @@ const Sidebar = () => {
       </nav>
 
       {/* Logout */}
-      <div className="p-3 border-t border-sidebar-border">
+      <div className="p-4 border-t border-sidebar-border">
         <button
           onClick={() => { logout(); setMobileOpen(false); }}
-          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:bg-destructive/10 hover:text-destructive transition-all"
+          className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-sidebar-foreground/60 hover:bg-destructive/15 hover:text-destructive transition-all duration-200"
         >
-          <LogOut className="w-4 h-4" /> Logout
+          <LogOut className="w-[18px] h-[18px]" /> Sign Out
         </button>
       </div>
     </div>
@@ -87,7 +90,7 @@ const Sidebar = () => {
       {/* Mobile hamburger */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="md:hidden fixed top-3 left-3 z-50 p-2 rounded-lg bg-card border border-border shadow-sm"
+        className="md:hidden fixed top-3 left-3 z-50 p-2.5 rounded-xl bg-card border border-border shadow-lg"
       >
         <Menu className="w-5 h-5 text-foreground" />
       </button>
@@ -95,9 +98,9 @@ const Sidebar = () => {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-50 flex">
-          <div className="absolute inset-0 bg-foreground/40 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="relative w-64 bg-sidebar z-10">
-            <button onClick={() => setMobileOpen(false)} className="absolute top-3 right-3 p-1 text-sidebar-foreground/70 hover:text-sidebar-foreground">
+          <div className="absolute inset-0 bg-foreground/50 backdrop-blur-md" onClick={() => setMobileOpen(false)} />
+          <div className="relative w-72 bg-sidebar z-10 shadow-2xl">
+            <button onClick={() => setMobileOpen(false)} className="absolute top-4 right-4 p-1.5 rounded-lg text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/40 transition-all">
               <X className="w-5 h-5" />
             </button>
             {nav}
@@ -106,7 +109,7 @@ const Sidebar = () => {
       )}
 
       {/* Desktop sidebar */}
-      <div className="hidden md:block w-64 bg-sidebar h-screen sticky top-0 border-r border-sidebar-border shrink-0">
+      <div className="hidden md:block w-[260px] bg-sidebar h-screen sticky top-0 border-r border-sidebar-border shrink-0">
         {nav}
       </div>
     </>
