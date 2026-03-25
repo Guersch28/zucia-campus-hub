@@ -1,0 +1,63 @@
+{
+  "university_info": {
+    "name": "Zambia Catholic University",
+    "short_name": "ZCU",
+    "motto": "Veritas et Lux (Truth and Light)",
+    "founded": "2022",
+    "type": "Private Catholic University",
+    "rector": "Rev. Fr. Dr. Rector Name",
+    "location": "Mpanshya Road, Lusaka, Zambia",
+    "website": "www.zcu.ac.zm",
+    "email": "info@zcu.ac.zm",
+    "phone": "+260 211 123456",
+    "vision": "To be a leading Catholic university in Africa promoting integral human development.",
+    "mission": "To provide quality education rooted in Catholic values, critical thinking, and service to humanity.",
+    "description": "Zambia Catholic University ZCU is a private Catholic institution of higher learning in Zambia offering undergraduate and postgraduate programs across multiple faculties."
+  },
+  "faqs": [
+    {"id": 1, "question": "How do I apply to ZCU?", "answer": "Apply online at www.zcu.ac.zm/admissions. You need a Grade 12 certificate with at least 5 credits including English.", "category": "admissions"},
+    {"id": 2, "question": "What are the tuition fees?", "answer": "Undergraduate programs cost K18,500 per semester. Postgraduate programs cost K22,000 per semester. Fees are reviewed annually.", "category": "fees"},
+    {"id": 3, "question": "Where is ZCU located?", "answer": "ZCU is located on Mpanshya Road, Lusaka, Zambia.", "category": "location"},
+    {"id": 4, "question": "What programs does ZCU offer?", "answer": "ZCU offers programs in Business Administration, Information Technology, Education, Nursing, Law, and Theology.", "category": "programs"},
+    {"id": 5, "question": "What is the ZCU motto?", "answer": "The motto of Zambia Catholic University is Veritas et Lux meaning Truth and Light.", "category": "general"},
+    {"id": 6, "question": "When does the semester start?", "answer": "Semester 1 starts in February and Semester 2 starts in August each year.", "category": "academic"},
+    {"id": 7, "question": "Does ZCU have a library?", "answer": "Yes ZCU has a fully equipped library open Monday to Friday 8am to 8pm and Saturday 9am to 5pm.", "category": "facilities"},
+    {"id": 8, "question": "How do I contact ZCU?", "answer": "Call +260 211 123456 or email info@zcu.ac.zm. Visit us at Mpanshya Road Lusaka.", "category": "contact"},
+    {"id": 9, "question": "Is there student accommodation?", "answer": "ZCU provides limited on-campus accommodation. Students are advised to apply early as spaces are limited.", "category": "accommodation"},
+    {"id": 10, "question": "What scholarships are available?", "answer": "ZCU offers merit-based scholarships and bursaries. Contact the admissions office for current opportunities.", "category": "financial"}
+  ],
+  "programs": [
+    {"name": "Bachelor of Information Technology", "faculty": "Science and Technology", "duration": "4 years", "entry_requirements": "5 O-Level credits including Math and English", "description": "Covers software development, networking, databases, and AI."},
+    {"name": "Bachelor of Business Administration", "faculty": "Business and Management", "duration": "4 years", "entry_requirements": "5 O-Level credits including Math and English", "description": "Covers accounting, management, marketing, and entrepreneurship."},
+    {"name": "Bachelor of Education", "faculty": "Education", "duration": "4 years", "entry_requirements": "5 O-Level credits including English", "description": "Prepares students for teaching careers at secondary level."},
+    {"name": "Bachelor of Laws LLB", "faculty": "Law", "duration": "4 years", "entry_requirements": "5 O-Level credits with B or better in English", "description": "Covers constitutional law, criminal law, civil procedure, and human rights."},
+    {"name": "Bachelor of Nursing Science", "faculty": "Health Sciences", "duration": "4 years", "entry_requirements": "5 O-Level credits including Biology and English", "description": "Trains professional nurses with clinical placement in partner hospitals."}
+  ],
+  "academic_calendar": [
+    {"event": "Semester 1 Registration", "date": "January 2025"},
+    {"event": "Semester 1 Start", "date": "February 2025"},
+    {"event": "Mid-Semester Break", "date": "April 2025"},
+    {"event": "Semester 1 Examinations", "date": "June 2025"},
+    {"event": "Semester 2 Start", "date": "August 2025"},
+    {"event": "Semester 2 Examinations", "date": "November 2025"},
+    {"event": "Graduation Ceremony", "date": "December 2025"}
+  ],
+  "campus_facilities": ["Main Library", "Computer Laboratory", "Chapel", "Cafeteria", "Sports Field", "Student Common Room", "Administrative Block", "Lecture Halls"],
+  "student_services": {
+    "registration": "Student registration is done online at portal.zcu.ac.zm",
+    "library_hours": "Monday to Friday 8am to 8pm, Saturday 9am to 5pm",
+    "it_support": "itsupport@zcu.ac.zm, Block C Room 12",
+    "counseling": "Student counseling available Monday to Friday 9am to 4pm",
+    "finance_office": "finance@zcu.ac.zm, +260 211 123457"
+  },
+  "custom_knowledge": [
+    {
+      "id": 1,
+      "title": "IT Department Welcome Note",
+      "content": "Welcome to the ZCU IT Department. We offer support for all student systems including the student portal, email setup, and laboratory bookings. Visit us at Block C or email itsupport@zcu.ac.zm.",
+      "source_type": "text",
+      "tags": ["IT", "support", "department"],
+      "date_added": "2025-01-01"
+    }
+  ]
+}
