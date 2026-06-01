@@ -1,48 +1,53 @@
 import { useCallback, useState } from "react";
-import { Upload, FileText, X } from "lucide-react";
+import { UploadCloud, FileText, X } from "lucide-react";
 
-interface UploadZoneProps {
-  onFile: (file: File) => void;
+interface Props {
+  onFile: (file: File | null) => void;
   currentFile: File | null;
+  maxSizeMB?: number;
 }
 
-const UploadZone = ({ onFile, currentFile }: UploadZoneProps) => {
-  const [dragOver, setDragOver] = useState(false);
-  const [error, setError] = useState("");
+const UploadZone = ({ onFile, currentFile, maxSizeMB = 20 }: Props) => {
+  const [dragging, setDragging] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const validateAndSet = useCallback((file: File) => {
-    setError("");
-    if (file.type !== "application/pdf") {
-      setError("Only PDF files are allowed");
-      return;
-    }
-    if (file.size > 20 * 1024 * 1024) {
-      setError("File size must be under 20MB");
-      return;
-    }
-    onFile(file);
-  }, [onFile]);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file) validateAndSet(file);
-  }, [validateAndSet]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) validateAndSet(file);
-  };
+  const handle = useCallback(
+    (f: File | undefined | null) => {
+      setError(null);
+      if (!f) return;
+      if (!f.name.toLowerCase().endsWith(".pdf")) {
+        setError("Only PDF files are allowed.");
+        return;
+      }
+      if (f.size > maxSizeMB * 1024 * 1024) {
+        setError(`File exceeds the ${maxSizeMB} MB limit.`);
+        return;
+      }
+      onFile(f);
+    },
+    [onFile, maxSizeMB],
+  );
 
   if (currentFile) {
     return (
-      <div className="flex items-center gap-3 p-4 rounded-xl border border-primary/30 bg-primary/5">
-        <FileText className="w-8 h-8 text-primary" />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-foreground truncate">{currentFile.name}</p>
-          <p className="text-xs text-muted-foreground">{(currentFile.size / (1024 * 1024)).toFixed(2)} MB</p>
+      <div className="flex items-center justify-between gap-3 p-4 rounded-xl border border-border bg-muted/40">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+            <FileText className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-foreground truncate">{currentFile.name}</p>
+            <p className="text-xs text-muted-foreground">
+              {(currentFile.size / 1024 / 1024).toFixed(2)} MB
+            </p>
+          </div>
         </div>
+        <button
+          onClick={() => onFile(null)}
+          className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
     );
   }
@@ -50,19 +55,30 @@ const UploadZone = ({ onFile, currentFile }: UploadZoneProps) => {
   return (
     <div>
       <label
-        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={handleDrop}
-        className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
-          dragOver ? "border-primary bg-primary/5" : "border-input hover:border-primary/50 hover:bg-muted/30"
+        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          handle(e.dataTransfer.files?.[0]);
+        }}
+        className={`flex flex-col items-center justify-center w-full py-10 rounded-xl border-2 border-dashed cursor-pointer transition-all ${
+          dragging
+            ? "border-accent bg-accent/5"
+            : "border-input hover:border-accent/60 hover:bg-muted/40"
         }`}
       >
-        <Upload className={`w-10 h-10 mb-2 ${dragOver ? "text-primary" : "text-muted-foreground"}`} />
-        <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-primary">Click to upload</span> or drag and drop
+        <UploadCloud className="w-10 h-10 text-muted-foreground mb-3" />
+        <p className="text-sm font-medium text-foreground">
+          Drag & drop a PDF or <span className="text-accent">browse</span>
         </p>
-        <p className="text-xs text-muted-foreground mt-1">PDF only, max 20MB</p>
-        <input type="file" accept=".pdf" onChange={handleChange} className="hidden" />
+        <p className="text-xs text-muted-foreground mt-1">Max {maxSizeMB} MB</p>
+        <input
+          type="file"
+          accept=".pdf,application/pdf"
+          className="hidden"
+          onChange={(e) => handle(e.target.files?.[0])}
+        />
       </label>
       {error && <p className="text-xs text-destructive mt-2">{error}</p>}
     </div>
