@@ -2,40 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap');
 
+/*
+  ZUCIA Design System — 2-color palette
+  Primary  : Deep Navy   (HSL 222 47% 15%)
+  Accent   : Warm Amber  (HSL 38 92% 50%)
+  Surfaces : Off-white / soft slate neutrals
+*/
 @layer base {
   :root {
-    --background: 100 8% 97%;
-    --foreground: 156 25% 12%;
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+
     --card: 0 0% 100%;
-    --card-foreground: 156 25% 12%;
+    --card-foreground: 222 47% 11%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 156 25% 12%;
-    --primary: 145 62% 24%;
-    --primary-foreground: 48 100% 96%;
-    --secondary: 42 92% 56%;
-    --secondary-foreground: 42 80% 14%;
-    --muted: 100 8% 93%;
-    --muted-foreground: 156 10% 46%;
-    --accent: 42 92% 56%;
-    --accent-foreground: 42 80% 14%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 222 47% 15%;
+    --primary-foreground: 210 20% 98%;
+
+    --secondary: 38 92% 50%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 16% 94%;
+    --muted-foreground: 222 14% 42%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 222 47% 11%;
+
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 156 12% 88%;
-    --input: 156 12% 85%;
-    --ring: 145 62% 24%;
+
+    --border: 220 14% 90%;
+    --input: 220 14% 88%;
+    --ring: 38 92% 50%;
     --radius: 0.75rem;
 
-    --zcu-green: 145 62% 24%;
-    --zcu-green-dark: 148 68% 14%;
-    --zcu-green-light: 142 45% 38%;
-    --zcu-green-muted: 145 30% 92%;
-    --zcu-gold: 42 92% 56%;
-    --zcu-gold-light: 42 88% 72%;
-    --zcu-gold-dark: 38 88% 42%;
-    --zcu-gold-muted: 42 60% 94%;
+    /* Brand aliases (kept for legacy badge utilities) */
+    --zcu-green: 222 47% 15%;
+    --zcu-green-dark: 222 47% 9%;
+    --zcu-green-light: 222 30% 30%;
+    --zcu-gold: 38 92% 50%;
+    --zcu-gold-light: 38 92% 70%;
+    --zcu-gold-dark: 32 92% 40%;
 
+    /* Tag colours */
     --year-1: 215 85% 55%;
     --year-2: 262 65% 58%;
     --year-3: 32 92% 52%;
@@ -43,49 +57,50 @@
     --sem-1: 172 62% 38%;
     --sem-2: 335 68% 54%;
 
-    --sidebar-background: 148 68% 12%;
-    --sidebar-foreground: 42 40% 92%;
-    --sidebar-primary: 42 92% 56%;
-    --sidebar-primary-foreground: 148 68% 12%;
-    --sidebar-accent: 145 50% 20%;
-    --sidebar-accent-foreground: 42 40% 96%;
-    --sidebar-border: 148 40% 20%;
-    --sidebar-ring: 42 92% 56%;
+    /* Sidebar (dark navy) */
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 20% 92%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 222 40% 18%;
+    --sidebar-accent-foreground: 210 20% 96%;
+    --sidebar-border: 222 30% 22%;
+    --sidebar-ring: 38 92% 50%;
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: "cv11", "ss01";
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
-    letter-spacing: -0.01em;
+    font-family: 'Sora', 'Inter', sans-serif;
+    letter-spacing: -0.02em;
+    font-weight: 700;
   }
 }
 
 @layer components {
   .zcu-gradient {
-    background: linear-gradient(145deg, hsl(145 62% 24%) 0%, hsl(148 68% 14%) 60%, hsl(145 50% 20%) 100%);
-  }
-  .zcu-gold-gradient {
-    background: linear-gradient(135deg, hsl(42 92% 56%) 0%, hsl(38 88% 42%) 100%);
+    background: linear-gradient(145deg, hsl(222 47% 18%) 0%, hsl(222 47% 9%) 100%);
   }
   .zcu-hero-gradient {
-    background: linear-gradient(160deg, hsl(148 68% 12%) 0%, hsl(145 62% 24%) 40%, hsl(142 45% 38%) 100%);
+    background:
+      radial-gradient(at 20% 0%, hsl(38 92% 50% / 0.18) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, hsl(222 60% 30% / 0.6) 0px, transparent 50%),
+      linear-gradient(160deg, hsl(222 47% 11%) 0%, hsl(222 47% 16%) 100%);
   }
   .zcu-card-hover {
-    @apply transition-all duration-300 ease-out;
+    @apply transition-all duration-200 ease-out;
   }
   .zcu-card-hover:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 40px -12px hsl(145 62% 24% / 0.18), 0 4px 12px -4px hsl(0 0% 0% / 0.06);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -12px hsl(222 47% 15% / 0.18);
+    border-color: hsl(38 92% 50% / 0.4);
   }
-
   .glass-card {
     background: hsl(0 0% 100% / 0.85);
     backdrop-filter: blur(16px);
@@ -94,31 +109,28 @@
 
   .chat-bubble-user {
     @apply rounded-2xl rounded-br-md px-4 py-3;
-    background: linear-gradient(135deg, hsl(145 62% 24%), hsl(148 68% 14%));
-    color: hsl(48 100% 96%);
-    box-shadow: 0 2px 8px -2px hsl(145 62% 24% / 0.3);
+    background: hsl(222 47% 15%);
+    color: hsl(210 20% 98%);
   }
   .chat-bubble-bot {
     @apply rounded-2xl rounded-bl-md px-4 py-3;
     background: hsl(0 0% 100%);
-    color: hsl(156 25% 12%);
-    box-shadow: 0 2px 12px -4px hsl(0 0% 0% / 0.08);
-    border: 1px solid hsl(156 12% 92%);
+    color: hsl(222 47% 11%);
+    border: 1px solid hsl(220 14% 90%);
   }
 
-  .badge-year-1 { background: hsl(215 85% 55% / 0.12); color: hsl(215 85% 45%); font-weight: 600; }
+  .badge-year-1 { background: hsl(215 85% 55% / 0.12); color: hsl(215 85% 40%); font-weight: 600; }
   .badge-year-2 { background: hsl(262 65% 58% / 0.12); color: hsl(262 65% 48%); font-weight: 600; }
-  .badge-year-3 { background: hsl(32 92% 52% / 0.12); color: hsl(32 92% 40%); font-weight: 600; }
+  .badge-year-3 { background: hsl(32 92% 52% / 0.14); color: hsl(32 92% 36%); font-weight: 600; }
   .badge-year-4 { background: hsl(0 78% 55% / 0.12); color: hsl(0 78% 45%); font-weight: 600; }
-  .badge-sem-1 { background: hsl(172 62% 38% / 0.12); color: hsl(172 62% 30%); font-weight: 600; }
+  .badge-sem-1 { background: hsl(172 62% 38% / 0.14); color: hsl(172 62% 28%); font-weight: 600; }
   .badge-sem-2 { background: hsl(335 68% 54% / 0.12); color: hsl(335 68% 44%); font-weight: 600; }
 
   .typing-dot {
     @apply w-2 h-2 rounded-full;
-    background: hsl(145 62% 24%);
+    background: hsl(222 47% 15%);
     animation: typingBounce 1.4s infinite ease-in-out;
   }
-  .typing-dot:nth-child(1) { animation-delay: 0s; }
   .typing-dot:nth-child(2) { animation-delay: 0.2s; }
   .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
@@ -131,25 +143,5 @@
     0% { transform: translateX(100%); }
     100% { transform: translateX(-100%); }
   }
-  .ticker-animate {
-    animation: ticker 25s linear infinite;
-  }
-
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-  .shimmer {
-    background: linear-gradient(90deg, hsl(156 12% 88%) 25%, hsl(156 12% 94%) 50%, hsl(156 12% 88%) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-6px); }
-  }
-  .float-animation {
-    animation: float 3s ease-in-out infinite;
-  }
+  .ticker-animate { animation: ticker 25s linear infinite; }
 }
