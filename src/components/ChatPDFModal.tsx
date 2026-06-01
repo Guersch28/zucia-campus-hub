@@ -1,119 +1,167 @@
-import { useState, useRef, useEffect } from "react";
-import { type CourseMaterial } from "@/constants/zcuData";
-import { X, Send, FileText } from "lucide-react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Send, FileText, Loader2, Trash2 } from "lucide-react";
+import { pdfChatApi, type CourseFile, type ChatPdfMessage } from "@/services/api";
 
-interface ChatPDFModalProps {
-  file: CourseMaterial;
+interface Props {
+  file: CourseFile;
   onClose: () => void;
 }
 
-interface PDFChatMsg {
-  id: string;
-  role: "user" | "bot";
-  content: string;
-}
-
-const ChatPDFModal = ({ file, onClose }: ChatPDFModalProps) => {
-  const storageKey = `zucia_pdf_chat_${file.id}`;
-  const [messages, setMessages] = useState<PDFChatMsg[]>(() => {
-    const saved = localStorage.getItem(storageKey);
-    return saved ? JSON.parse(saved) : [];
-  });
+const ChatPDFModal = ({ file, onClose }: Props) => {
+  const [messages, setMessages] = useState<ChatPdfMessage[]>([]);
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    localStorage.setItem(storageKey, JSON.stringify(messages));
+    (async () => {
+      try {
+        const hist = await pdfChatApi.history(file.id);
+        setMessages(hist);
+      } catch {
+        setMessages([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [file.id]);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, storageKey]);
+  }, [messages, sending]);
 
-  const sendMessage = () => {
-    if (!input.trim()) return;
-    const userMsg: PDFChatMsg = { id: String(Date.now()), role: "user", content: input.trim() };
-    setMessages((prev) => [...prev, userMsg]);
+  const send = async () => {
+    const q = input.trim();
+    if (!q || sending) return;
     setInput("");
-    setIsTyping(true);
-
-    // Simulated PDF Q&A response
-    setTimeout(() => {
+    setMessages((prev) => [
+      ...prev,
+      { message: q, is_user: true, timestamp: new Date().toISOString() },
+    ]);
+    setSending(true);
+    try {
+      const r = await pdfChatApi.send(file.id, q);
+      if (r.response) {
+        setMessages((prev) => [
+          ...prev,
+          { message: r.response!, is_user: false, timestamp: new Date().toISOString() },
+        ]);
+      }
+    } catch (err) {
       setMessages((prev) => [
         ...prev,
         {
-          id: String(Date.now() + 1),
-          role: "bot",
-          content: `Based on "${file.subject}" (${file.filename}):\n\nThis is a simulated response. In a production environment with the FastAPI backend running, ZUCIA would extract the actual PDF content and provide answers based on the document. Please connect the backend to enable full PDF Q&A functionality.`,
+          message: `Error: ${err instanceof Error ? err.message : "Failed"}`,
+          is_user: false,
+          timestamp: new Date().toISOString(),
         },
       ]);
-      setIsTyping(false);
-    }, 1200);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const clear = async () => {
+    if (!confirm("Clear chat history for this PDF?")) return;
+    try {
+      await pdfChatApi.clear(file.id);
+      setMessages([]);
+    } catch { /* ignore */ }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-foreground/40 backdrop-blur-sm" onClick={onClose} />
+    <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="relative w-full max-w-lg h-[600px] max-h-[80vh] bg-card rounded-2xl shadow-2xl border border-border flex flex-col overflow-hidden"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm flex items-center justify-center p-4"
+        onClick={onClose}
       >
-        {/* Header */}
-        <div className="zcu-gradient p-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <FileText className="w-5 h-5 text-primary-foreground shrink-0" />
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-primary-foreground truncate">{file.subject}</p>
-              <p className="text-[10px] text-primary-foreground/70 truncate">{file.filename}</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-primary-foreground/10 text-primary-foreground transition-all">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {messages.length === 0 && (
-            <p className="text-center text-sm text-muted-foreground py-8">
-              Ask any question about this document.
-            </p>
-          )}
-          {messages.map((msg) => (
-            <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[85%] ${msg.role === "user" ? "chat-bubble-user" : "chat-bubble-bot"}`}>
-                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-              </div>
-            </div>
-          ))}
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="chat-bubble-bot flex items-center gap-1.5 px-4 py-3">
-                <div className="typing-dot" /><div className="typing-dot" /><div className="typing-dot" />
-              </div>
-            </div>
-          )}
-          <div ref={bottomRef} />
-        </div>
-
-        {/* Input */}
-        <form
-          onSubmit={(e) => { e.preventDefault(); sendMessage(); }}
-          className="p-3 border-t border-border flex gap-2"
+        <motion.div
+          initial={{ scale: 0.96, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.96, opacity: 0 }}
+          onClick={(e) => e.stopPropagation()}
+          className="bg-card rounded-2xl shadow-2xl w-full max-w-2xl h-[80vh] flex flex-col overflow-hidden border border-border"
         >
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about this document..."
-            className="flex-1 px-3 py-2 rounded-lg border border-input bg-background text-sm focus:ring-2 focus:ring-ring focus:outline-none"
-          />
-          <button type="submit" disabled={!input.trim()} className="p-2 rounded-lg bg-primary text-primary-foreground disabled:opacity-40 transition-all">
-            <Send className="w-4 h-4" />
-          </button>
-        </form>
+          <header className="flex items-center justify-between gap-3 p-4 border-b border-border">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-semibold text-sm text-foreground truncate">{file.filename}</p>
+                <p className="text-xs text-muted-foreground">Ask AI about this document</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={clear}
+                className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-destructive transition-all"
+                title="Clear history"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-lg text-muted-foreground hover:bg-muted transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </header>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-muted/20">
+            {loading ? (
+              <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                <Loader2 className="w-4 h-4 animate-spin mr-2" /> Loading conversation…
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="text-center py-12 text-sm text-muted-foreground">
+                Ask a question about this PDF to get started.
+              </div>
+            ) : (
+              messages.map((m, i) => (
+                <div key={i} className={`flex ${m.is_user ? "justify-end" : "justify-start"}`}>
+                  <div className={`max-w-[85%] ${m.is_user ? "chat-bubble-user" : "chat-bubble-bot"}`}>
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed">{m.message}</p>
+                  </div>
+                </div>
+              ))
+            )}
+            {sending && (
+              <div className="flex justify-start">
+                <div className="chat-bubble-bot flex items-center gap-1.5 px-5 py-4">
+                  <div className="typing-dot" /><div className="typing-dot" /><div className="typing-dot" />
+                </div>
+              </div>
+            )}
+            <div ref={bottomRef} />
+          </div>
+
+          <form
+            onSubmit={(e) => { e.preventDefault(); send(); }}
+            className="flex items-center gap-2 p-3 border-t border-border"
+          >
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask a question about this PDF…"
+              disabled={sending}
+              className="flex-1 px-4 py-2.5 rounded-xl border border-input bg-background text-sm focus:ring-2 focus:ring-ring focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={!input.trim() || sending}
+              className="p-2.5 rounded-xl bg-accent text-accent-foreground hover:brightness-105 disabled:opacity-40 transition-all"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </form>
+        </motion.div>
       </motion.div>
-    </div>
+    </AnimatePresence>
   );
 };
 
