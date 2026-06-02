@@ -1,4 +1,15 @@
 import { API_BASE_URL } from "@/config/env";
+import {
+  isBackendDown,
+  isNetworkError,
+  markBackendDown,
+  mockAuth,
+  mockFiles,
+  mockLecturer,
+  mockPdfChat,
+  mockStudent,
+  mockZucia,
+} from "./mockBackend";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                             */
@@ -65,12 +76,9 @@ async function handle<T>(res: Response): Promise<T> {
     try {
       const data = await res.json();
       detail = data.detail || JSON.stringify(data);
-    } catch {
-      /* ignore */
-    }
+    } catch { /* ignore */ }
     throw new Error(detail || `Request failed (${res.status})`);
   }
-  // Some endpoints return empty body
   const text = await res.text();
   return text ? (JSON.parse(text) as T) : ({} as T);
 }
@@ -87,139 +95,216 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return handle<T>(res);
 }
 
+/**
+ * Run a real-backend call, falling back to the mock implementation
+ * when the backend is unreachable (network error / preview without tunnel).
+ */
+async function withMock<T>(real: () => Promise<T>, mock: () => T | Promise<T>): Promise<T> {
+  if (isBackendDown()) return await mock();
+  try {
+    return await real();
+  } catch (err) {
+    if (isNetworkError(err)) {
+      markBackendDown();
+      return await mock();
+    }
+    throw err;
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /*  Auth                                                              */
 /* ------------------------------------------------------------------ */
 export const authApi = {
   login: (username: string, password: string) =>
-    request<LoginResponse>("/login", {
-      method: "POST",
-      body: JSON.stringify({ username, password }),
-    }),
+    withMock<LoginResponse>(
+      () =>
+        request("/login", {
+          method: "POST",
+          body: JSON.stringify({ username, password }),
+        }),
+      () => mockAuth.login(username, password),
+    ),
 };
 
 /* ------------------------------------------------------------------ */
 /*  Files                                                             */
 /* ------------------------------------------------------------------ */
 export const filesApi = {
-  list: async (year?: string, semester?: string): Promise<CourseFile[]> => {
-    const params = new URLSearchParams();
-    if (year && year !== "all") params.set("year", year);
-    if (semester && semester !== "all") params.set("semester", semester);
-    const qs = params.toString();
-    const data = await request<{ files: CourseFile[] }>(`/files${qs ? `?${qs}` : ""}`);
-    return data.files || [];
-  },
+  list: (year?: string, semester?: string): Promise<CourseFile[]> =>
+    withMock(
+      async () => {
+        const params = new URLSearchParams();
+        if (year && year !== "all") params.set("year", year);
+        if (semester && semester !== "all") params.set("semester", semester);
+        const qs = params.toString();
+        const data = await request<{ files: CourseFile[] }>(`/files${qs ? `?${qs}` : ""}`);
+        return data.files || [];
+      },
+      () => mockFiles.list(year, semester),
+    ),
 
-  upload: async (file: File, year: string, semester: string): Promise<CourseFile> => {
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("year", year);
-    fd.append("semester", semester);
-    const res = await fetch(`${API_BASE_URL}/upload`, {
-      method: "POST",
-      headers: { ...authHeader() }, // no Content-Type → browser sets boundary
-      body: fd,
-    });
-    return handle<CourseFile>(res);
-  },
+  upload: (file: File, year: string, semester: string): Promise<CourseFile> =>
+    withMock(
+      async () => {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("year", year);
+        fd.append("semester", semester);
+        const res = await fetch(`${API_BASE_URL}/upload`, {
+          method: "POST",
+          headers: { ...authHeader() },
+          body: fd,
+        });
+        return handle<CourseFile>(res);
+      },
+      () => mockFiles.upload(file, year, semester),
+    ),
 
   delete: (fileId: string) =>
-    request<{ message: string }>(`/files/${encodeURIComponent(fileId)}`, {
-      method: "DELETE",
-    }),
+    withMock(
+      () =>
+        request<{ message: string }>(`/files/${encodeURIComponent(fileId)}`, {
+          method: "DELETE",
+        }),
+      () => mockFiles.delete(fileId),
+    ),
 
   downloadUrl: (fileId: string) =>
-    `${API_BASE_URL}/download/${encodeURIComponent(fileId)}`,
+    isBackendDown() ? "#" : `${API_BASE_URL}/download/${encodeURIComponent(fileId)}`,
 
-  summarize: async (fileId: string): Promise<{ summary: string }> => {
-    const fd = new FormData();
-    fd.append("file_id", fileId);
-    const res = await fetch(`${API_BASE_URL}/summarize`, {
-      method: "POST",
-      headers: { ...authHeader() },
-      body: fd,
-    });
-    return handle(res);
-  },
+  summarize: (fileId: string): Promise<{ summary: string }> =>
+    withMock(
+      async () => {
+        const fd = new FormData();
+        fd.append("file_id", fileId);
+        const res = await fetch(`${API_BASE_URL}/summarize`, {
+          method: "POST",
+          headers: { ...authHeader() },
+          body: fd,
+        });
+        return handle(res);
+      },
+      () => mockFiles.summarize(fileId),
+    ),
 
   ask: (fileId: string, question: string) =>
-    request<{ answer: string }>("/ask-question", {
-      method: "POST",
-      body: JSON.stringify({ file_id: fileId, question }),
-    }),
+    withMock(
+      () =>
+        request<{ answer: string }>("/ask-question", {
+          method: "POST",
+          body: JSON.stringify({ file_id: fileId, question }),
+        }),
+      () => mockFiles.ask(fileId, question),
+    ),
 };
 
 /* ------------------------------------------------------------------ */
-/*  PDF Chat (per-file conversational)                                */
+/*  PDF Chat                                                          */
 /* ------------------------------------------------------------------ */
 export const pdfChatApi = {
-  history: async (fileId: string): Promise<ChatPdfMessage[]> => {
-    const data = await request<{ messages: ChatPdfMessage[] }>(
-      `/chat/${encodeURIComponent(fileId)}`,
-    );
-    return data.messages || [];
-  },
+  history: (fileId: string): Promise<ChatPdfMessage[]> =>
+    withMock(
+      async () => {
+        const data = await request<{ messages: ChatPdfMessage[] }>(
+          `/chat/${encodeURIComponent(fileId)}`,
+        );
+        return data.messages || [];
+      },
+      () => mockPdfChat.history(fileId),
+    ),
 
   send: (fileId: string, message: string) =>
-    request<{ status: string; response?: string }>("/chat/message", {
-      method: "POST",
-      body: JSON.stringify({ file_id: fileId, message, is_user: true }),
-    }),
+    withMock(
+      () =>
+        request<{ status: string; response?: string }>("/chat/message", {
+          method: "POST",
+          body: JSON.stringify({ file_id: fileId, message, is_user: true }),
+        }),
+      () => mockPdfChat.send(fileId, message),
+    ),
 
   clear: (fileId: string) =>
-    request<{ status: string }>(`/chat/${encodeURIComponent(fileId)}`, {
-      method: "DELETE",
-    }),
+    withMock(
+      () =>
+        request<{ status: string }>(`/chat/${encodeURIComponent(fileId)}`, {
+          method: "DELETE",
+        }),
+      () => mockPdfChat.clear(fileId),
+    ),
 };
 
 /* ------------------------------------------------------------------ */
-/*  Lecturer notes & student responses                                */
+/*  Lecturer / student notes                                          */
 /* ------------------------------------------------------------------ */
 export const lecturerApi = {
   postNote: (fileId: string, message: string) =>
-    request("/lecturer/message", {
-      method: "POST",
-      body: JSON.stringify({ file_id: fileId, message }),
-    }),
+    withMock(
+      () =>
+        request("/lecturer/message", {
+          method: "POST",
+          body: JSON.stringify({ file_id: fileId, message }),
+        }),
+      () => mockLecturer.postNote(fileId, message),
+    ),
 
-  getNote: async (fileId: string): Promise<LecturerNote | null> => {
-    const data = await request<{ message: LecturerNote | null }>(
-      `/lecturer/message/${encodeURIComponent(fileId)}`,
-    );
-    return data.message;
-  },
+  getNote: (fileId: string): Promise<LecturerNote | null> =>
+    withMock(
+      async () => {
+        const data = await request<{ message: LecturerNote | null }>(
+          `/lecturer/message/${encodeURIComponent(fileId)}`,
+        );
+        return data.message;
+      },
+      () => mockLecturer.getNote(fileId),
+    ),
 
-  getResponses: async (fileId: string): Promise<StudentResponse[]> => {
-    const data = await request<{ responses: StudentResponse[] }>(
-      `/student/responses/${encodeURIComponent(fileId)}`,
-    );
-    return data.responses || [];
-  },
+  getResponses: (fileId: string): Promise<StudentResponse[]> =>
+    withMock(
+      async () => {
+        const data = await request<{ responses: StudentResponse[] }>(
+          `/student/responses/${encodeURIComponent(fileId)}`,
+        );
+        return data.responses || [];
+      },
+      () => mockLecturer.getResponses(fileId),
+    ),
 };
 
 export const studentApi = {
   postResponse: (fileId: string, response: string) =>
-    request("/student/response", {
-      method: "POST",
-      body: JSON.stringify({ file_id: fileId, response }),
-    }),
+    withMock(
+      () =>
+        request("/student/response", {
+          method: "POST",
+          body: JSON.stringify({ file_id: fileId, response }),
+        }),
+      () => mockStudent.postResponse(fileId, response),
+    ),
 
-  publicResponses: async (fileId: string): Promise<StudentResponse[]> => {
-    const data = await request<{ responses: StudentResponse[] }>(
-      `/public/responses/${encodeURIComponent(fileId)}`,
-    );
-    return data.responses || [];
-  },
+  publicResponses: (fileId: string): Promise<StudentResponse[]> =>
+    withMock(
+      async () => {
+        const data = await request<{ responses: StudentResponse[] }>(
+          `/public/responses/${encodeURIComponent(fileId)}`,
+        );
+        return data.responses || [];
+      },
+      () => mockStudent.publicResponses(fileId),
+    ),
 };
 
 /* ------------------------------------------------------------------ */
-/*  ZUCIA Chatbot (university-wide)                                   */
+/*  ZUCIA university chat                                             */
 /* ------------------------------------------------------------------ */
 export const zuciaApi = {
-  ask: (question: string) =>
-    request<ZuciaReply>("/chat", {
-      method: "POST",
-      body: JSON.stringify({ question }),
-    }),
+  ask: (question: string): Promise<ZuciaReply> =>
+    withMock(
+      () =>
+        request<ZuciaReply>("/chat", {
+          method: "POST",
+          body: JSON.stringify({ question }),
+        }),
+      () => mockZucia.ask(question),
+    ),
 };
