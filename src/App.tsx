@@ -8,6 +8,7 @@ import LecturerDashboard from "@/pages/LecturerDashboard";
 import ChatbotPage from "@/pages/ChatbotPage";
 import ConversationHistory from "@/pages/ConversationHistory";
 import ProtectedLayout from "@/components/ProtectedLayout";
+import MockModeBanner from "@/components/MockModeBanner";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -16,6 +17,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
+      <MockModeBanner />
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
