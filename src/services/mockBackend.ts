@@ -1,0 +1,261 @@
+/**
+ * In-browser mock of the FastAPI backend.
+ * Activated automatically when the real backend (VITE_API_BASE_URL) is unreachable
+ * — typically when running on the Lovable preview without a tunnel to localhost:8000.
+ *
+ * All state is persisted in localStorage so refreshes preserve uploads & chats.
+ */
+import { matchZcuKeyword, zcuData } from "@/constants/zcuData";
+import type {
+  CourseFile,
+  ChatPdfMessage,
+  LoginResponse,
+  ZuciaReply,
+  LecturerNote,
+  StudentResponse,
+} from "./api";
+
+/* ---------------- storage helpers ---------------- */
+const FILES_KEY = "mock_files";
+const CHAT_KEY = (id: string) => `mock_chat_${id}`;
+const NOTE_KEY = (id: string) => `mock_note_${id}`;
+const RESP_KEY = (id: string) => `mock_resp_${id}`;
+
+function read<T>(key: string, fallback: T): T {
+  try {
+    const v = localStorage.getItem(key);
+    return v ? (JSON.parse(v) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+function write<T>(key: string, value: T) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+function uid() {
+  return `mock-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+function now() {
+  return new Date().toISOString();
+}
+
+/* ---------------- detection ---------------- */
+let realBackendDown = false;
+export function markBackendDown() {
+  if (!realBackendDown) {
+    realBackendDown = true;
+    // eslint-disable-next-line no-console
+    console.warn(
+      "[ZUCIA] FastAPI backend unreachable — using in-browser mock data so you can test all flows.",
+    );
+  }
+}
+export function isBackendDown() {
+  return realBackendDown;
+}
+export function isNetworkError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  const m = err.message.toLowerCase();
+  return (
+    m.includes("failed to fetch") ||
+    m.includes("networkerror") ||
+    m.includes("load failed") ||
+    m.includes("network request failed")
+  );
+}
+
+/* ---------------- auth ---------------- */
+export const mockAuth = {
+  login(username: string, password: string): LoginResponse {
+    let role: "student" | "lecturer";
+    if (password === "ITT2025") role = "lecturer";
+    else if (password === "student123") role = "student";
+    else throw new Error("Invalid credentials");
+    const token = btoa(`${username}:${role}:${Date.now()}`);
+    return { token, role, username };
+  },
+};
+
+/* ---------------- seed sample materials ---------------- */
+function seedFiles(): CourseFile[] {
+  const existing = read<CourseFile[]>(FILES_KEY, []);
+  if (existing.length) return existing;
+  const seed: CourseFile[] = [
+    {
+      id: uid(),
+      filename: "Intro to Information Technology - Outline.pdf",
+      year: "1",
+      semester: "1",
+      size: 184_320,
+      uploaded_at: now(),
+    },
+    {
+      id: uid(),
+      filename: "Business Communication Notes.pdf",
+      year: "1",
+      semester: "2",
+      size: 256_000,
+      uploaded_at: now(),
+    },
+    {
+      id: uid(),
+      filename: "Database Systems - Lecture Pack.pdf",
+      year: "2",
+      semester: "1",
+      size: 421_888,
+      uploaded_at: now(),
+    },
+    {
+      id: uid(),
+      filename: "Catholic Social Teaching.pdf",
+      year: "3",
+      semester: "2",
+      size: 198_400,
+      uploaded_at: now(),
+    },
+  ];
+  write(FILES_KEY, seed);
+  return seed;
+}
+
+/* ---------------- files ---------------- */
+export const mockFiles = {
+  list(year?: string, semester?: string): CourseFile[] {
+    const all = seedFiles();
+    return all.filter(
+      (f) =>
+        (!year || year === "all" || f.year === year) &&
+        (!semester || semester === "all" || f.semester === semester),
+    );
+  },
+  upload(file: File, year: string, semester: string): CourseFile {
+    const all = read<CourseFile[]>(FILES_KEY, []);
+    const entry: CourseFile = {
+      id: uid(),
+      filename: file.name,
+      year,
+      semester,
+      size: file.size,
+      uploaded_at: now(),
+    };
+    all.unshift(entry);
+    write(FILES_KEY, all);
+    return entry;
+  },
+  delete(id: string) {
+    const all = read<CourseFile[]>(FILES_KEY, []).filter((f) => f.id !== id);
+    write(FILES_KEY, all);
+    localStorage.removeItem(CHAT_KEY(id));
+    localStorage.removeItem(NOTE_KEY(id));
+    localStorage.removeItem(RESP_KEY(id));
+    return { message: "Deleted" };
+  },
+  summarize(id: string) {
+    const file = read<CourseFile[]>(FILES_KEY, []).find((f) => f.id === id);
+    return {
+      summary:
+        `📄 **Summary of ${file?.filename ?? "document"}**\n\n` +
+        `This document covers the core concepts of the module, including key definitions, ` +
+        `worked examples, and recommended further reading. Highlights:\n\n` +
+        `• Introduction and learning objectives\n` +
+        `• Key terminology and frameworks\n` +
+        `• Practical examples and case studies\n` +
+        `• Suggested exercises and assessment criteria\n\n` +
+        `_(Generated by the in-browser mock — connect the FastAPI backend for a real AI summary.)_`,
+    };
+  },
+  ask(id: string, question: string) {
+    const file = read<CourseFile[]>(FILES_KEY, []).find((f) => f.id === id);
+    return {
+      answer: `Regarding **${file?.filename ?? "this document"}** — "${question}":\n\n` +
+        `Based on the material in this document, the topic relates to the course outline and ` +
+        `learning objectives. For a precise answer, please refer to the chapter or run the real backend for AI-powered analysis.`,
+    };
+  },
+};
+
+/* ---------------- PDF chat ---------------- */
+function pdfBotReply(file: CourseFile | undefined, question: string): string {
+  const trimmed = question.trim();
+  if (!file) return "I couldn't locate the document, please try again.";
+  const lower = trimmed.toLowerCase();
+  if (/summar/.test(lower))
+    return `Here's a quick overview of **${file.filename}**:\n\n• Covers core concepts of the module\n• Includes worked examples and key terminology\n• Ends with exercises for self-assessment`;
+  if (/topic|cover|about/.test(lower))
+    return `**${file.filename}** focuses on the foundational topics for Year ${file.year}, Semester ${file.semester}. It introduces definitions, gives examples, and provides practice questions.`;
+  return `Good question! In **${file.filename}**, "${trimmed}" is discussed in the context of the module's learning outcomes. (Mock response — connect the FastAPI backend for real PDF AI answers.)`;
+}
+
+export const mockPdfChat = {
+  history(fileId: string): ChatPdfMessage[] {
+    return read<ChatPdfMessage[]>(CHAT_KEY(fileId), []);
+  },
+  send(fileId: string, message: string) {
+    const file = read<CourseFile[]>(FILES_KEY, []).find((f) => f.id === fileId);
+    const history = read<ChatPdfMessage[]>(CHAT_KEY(fileId), []);
+    const userMsg: ChatPdfMessage = {
+      message,
+      is_user: true,
+      timestamp: now(),
+    };
+    const reply = pdfBotReply(file, message);
+    const botMsg: ChatPdfMessage = {
+      message: reply,
+      is_user: false,
+      timestamp: now(),
+    };
+    write(CHAT_KEY(fileId), [...history, userMsg, botMsg]);
+    return { status: "ok", response: reply };
+  },
+  clear(fileId: string) {
+    localStorage.removeItem(CHAT_KEY(fileId));
+    return { status: "ok" };
+  },
+};
+
+/* ---------------- lecturer notes / student responses ---------------- */
+export const mockLecturer = {
+  postNote(fileId: string, message: string) {
+    const note: LecturerNote = { message, lecturer: "lecturer", timestamp: now() };
+    write(NOTE_KEY(fileId), note);
+    return { status: "ok" };
+  },
+  getNote(fileId: string): LecturerNote | null {
+    return read<LecturerNote | null>(NOTE_KEY(fileId), null);
+  },
+  getResponses(fileId: string): StudentResponse[] {
+    return read<StudentResponse[]>(RESP_KEY(fileId), []);
+  },
+};
+export const mockStudent = {
+  postResponse(fileId: string, response: string) {
+    const list = read<StudentResponse[]>(RESP_KEY(fileId), []);
+    list.push({ student: "student", response, timestamp: now() });
+    write(RESP_KEY(fileId), list);
+    return { status: "ok" };
+  },
+  publicResponses(fileId: string): StudentResponse[] {
+    return read<StudentResponse[]>(RESP_KEY(fileId), []);
+  },
+};
+
+/* ---------------- ZUCIA general chat ---------------- */
+export const mockZucia = {
+  ask(question: string): ZuciaReply {
+    const local = matchZcuKeyword(question);
+    if (local) {
+      return { answer: local, source: "Knowledge Base", found_locally: true };
+    }
+    return {
+      answer:
+        `I don't have a precise answer for that yet, but here is what I know about ZCU:\n\n` +
+        `• Motto: ${zcuData.motto}\n` +
+        `• Location: ${zcuData.location}\n` +
+        `• Contact: ${zcuData.contacts.email} · ${zcuData.contacts.phone}\n\n` +
+        `Try asking about admissions, fees, programs, location, or contact details. ` +
+        `_(Connect the FastAPI backend to enable full AI answers.)_`,
+      source: "ZUCIA Mock",
+      found_locally: false,
+    };
+  },
+};
