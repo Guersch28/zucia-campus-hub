@@ -6,6 +6,7 @@ import LoginPage from "@/pages/LoginPage";
 import StudentDashboard from "@/pages/StudentDashboard";
 import LecturerDashboard from "@/pages/LecturerDashboard";
 import ChatbotPage from "@/pages/ChatbotPage";
+import ConversationHistory from "@/pages/ConversationHistory";
 import ProtectedLayout from "@/components/ProtectedLayout";
 import NotFound from "@/pages/NotFound";
 
@@ -30,6 +31,7 @@ const App = () => (
 
           <Route element={<ProtectedLayout />}>
             <Route path="/chatbot" element={<ChatbotPage />} />
+            <Route path="/history" element={<ConversationHistory />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

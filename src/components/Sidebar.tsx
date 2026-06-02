@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  Home, BookOpen, MessageCircle, LogOut, Menu, X, GraduationCap, UserCog,
+  Home, BookOpen, MessageCircle, LogOut, Menu, X, GraduationCap, UserCog, History,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -16,10 +16,12 @@ const Sidebar = () => {
     ? [
         { to: "/student", label: "Materials", icon: BookOpen },
         { to: "/chatbot", label: "ZUCIA Chat", icon: MessageCircle },
+        { to: "/history", label: "History", icon: History },
       ]
     : [
         { to: "/lecturer", label: "Dashboard", icon: Home },
         { to: "/chatbot", label: "ZUCIA Chat", icon: MessageCircle },
+        { to: "/history", label: "History", icon: History },
       ];
 
   const nav = (
