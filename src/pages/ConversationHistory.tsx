@@ -81,7 +81,7 @@ const ConversationHistory = () => {
         <div>
           <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">Conversation History</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Resume previous chats with ZUCIA or your PDFs.
+            Resume previous chats with the ZCU ChatBot or your PDFs.
           </p>
         </div>
         <button
@@ -104,7 +104,7 @@ const ConversationHistory = () => {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <p className="font-semibold text-foreground truncate">ZUCIA Assistant</p>
+            <p className="font-semibold text-foreground truncate">ZCU ChatBot</p>
             {zuciaPreview.ts && (
               <span className="text-[11px] text-muted-foreground shrink-0">{fmt(zuciaPreview.ts)}</span>
             )}
@@ -163,7 +163,7 @@ const ConversationHistory = () => {
                   </div>
                   <p className="text-xs text-muted-foreground truncate mt-0.5">
                     <span className="font-medium">
-                      {t.lastMessage.is_user ? "You: " : "ZUCIA: "}
+                      {t.lastMessage.is_user ? "You: " : "ZCU ChatBot: "}
                     </span>
                     {t.lastMessage.message}
                   </p>

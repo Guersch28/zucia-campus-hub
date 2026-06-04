@@ -3,6 +3,7 @@ import { zuciaApi } from "@/services/api";
 import NewsTicker from "@/components/NewsTicker";
 import { Send, Trash2, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import zcuLogo from "@/assets/zcu-logo.png";
 
 interface ChatMessage {
   id: string;
@@ -86,7 +87,7 @@ const ChatbotPage = () => {
       <div className="flex items-center justify-between px-4 md:px-8 py-3 border-b border-border bg-card">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-xl bg-background p-1 border border-border flex items-center justify-center">
-            <img src={new URL('@/assets/zcu-logo.png', import.meta.url).href} alt="ZCU" className="w-full h-full object-contain" />
+            <img src={zcuLogo} alt="ZCU" className="w-full h-full object-contain" />
           </div>
           <div>
             <h1 className="text-lg font-semibold text-foreground">ZCU ChatBot</h1>
