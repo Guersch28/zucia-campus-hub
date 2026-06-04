@@ -1,5 +1,5 @@
 export const zcuData = {
-  motto: "Veritas et Lux (Truth and Light)",
+  motto: "Veritas Vos Liberabit (The Truth Will Set You Free)",
   location: "Mpanshya Road, Lusaka, Zambia",
   contacts: {
     phone: "+260 211 123456",
