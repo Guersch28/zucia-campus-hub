@@ -1,13 +1,15 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Home, BookOpen, MessageCircle, LogOut, Menu, X, GraduationCap, UserCog, History,
 } from "lucide-react";
 import { useState } from "react";
+import zcuLogo from "@/assets/zcu-logo.png";
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isStudent = user?.role === "student";
@@ -15,26 +17,32 @@ const Sidebar = () => {
   const links = isStudent
     ? [
         { to: "/student", label: "Materials", icon: BookOpen },
-        { to: "/chatbot", label: "ZUCIA Chat", icon: MessageCircle },
+        { to: "/chatbot", label: "ZCU ChatBot", icon: MessageCircle },
         { to: "/history", label: "History", icon: History },
       ]
     : [
         { to: "/lecturer", label: "Dashboard", icon: Home },
-        { to: "/chatbot", label: "ZUCIA Chat", icon: MessageCircle },
+        { to: "/chatbot", label: "ZCU ChatBot", icon: MessageCircle },
         { to: "/history", label: "History", icon: History },
       ];
+
+  const handleSignOut = () => {
+    logout();
+    setMobileOpen(false);
+    navigate("/login", { replace: true });
+  };
 
   const nav = (
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-sidebar-primary flex items-center justify-center shadow-lg shadow-sidebar-primary/30">
-            <span className="text-sm font-serif font-bold text-sidebar-primary-foreground">ZCU</span>
+          <div className="w-12 h-12 rounded-xl bg-sidebar-primary-foreground/95 p-1 flex items-center justify-center shadow-lg shadow-sidebar-primary/30">
+            <img src={zcuLogo} alt="ZCU logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h2 className="font-serif font-bold text-sidebar-foreground text-sm tracking-tight">ZUCIA</h2>
-            <p className="text-[10px] text-sidebar-foreground/50 italic font-serif">Veritas et Lux</p>
+            <h2 className="font-bold text-sidebar-foreground text-sm tracking-tight">ZCU ChatBot</h2>
+            <p className="text-[10px] text-sidebar-foreground/55 italic">Veritas Vos Liberabit</p>
           </div>
         </div>
       </div>
@@ -48,7 +56,7 @@ const Sidebar = () => {
           }
           <div>
             <p className="text-sm font-semibold text-sidebar-accent-foreground capitalize">{user?.username}</p>
-            <p className="text-[10px] text-sidebar-foreground/50 capitalize">{user?.role}</p>
+            <p className="text-[10px] text-sidebar-foreground/55 capitalize">{user?.role}</p>
           </div>
         </div>
       </div>
@@ -65,7 +73,7 @@ const Sidebar = () => {
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                 active
                   ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md shadow-sidebar-primary/25"
-                  : "text-sidebar-foreground/65 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
               }`}
             >
               <link.icon className="w-[18px] h-[18px]" />
@@ -78,8 +86,8 @@ const Sidebar = () => {
       {/* Logout */}
       <div className="p-4 border-t border-sidebar-border">
         <button
-          onClick={() => { logout(); setMobileOpen(false); }}
-          className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-sidebar-foreground/60 hover:bg-destructive/15 hover:text-destructive transition-all duration-200"
+          onClick={handleSignOut}
+          className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-sidebar-foreground/70 hover:bg-destructive/15 hover:text-destructive transition-all duration-200"
         >
           <LogOut className="w-[18px] h-[18px]" /> Sign Out
         </button>

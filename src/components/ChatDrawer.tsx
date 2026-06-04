@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { matchZcuKeyword } from "@/constants/zcuData";
 import { MessageCircle, X, Send, Minimize2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import zcuLogo from "@/assets/zcu-logo.png";
 
 interface ChatMsg {
   id: string;
@@ -35,7 +36,7 @@ const ChatDrawer = () => {
         {
           id: String(Date.now() + 1),
           role: "bot",
-          content: localAnswer || `Thanks for asking! For detailed information, please visit our ZUCIA Chat page or contact info@zcu.ac.zm.`,
+          content: localAnswer || `Thanks for asking! For detailed information, please visit our ZCU ChatBot page or contact info@zcu.ac.zm.`,
           source: localAnswer ? "Knowledge Base" : "AI",
         },
       ]);
@@ -78,11 +79,11 @@ const ChatDrawer = () => {
             {/* Header */}
             <div className="zcu-gradient p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                  <span className="text-xs font-bold text-primary-foreground">Z</span>
+                <div className="w-9 h-9 rounded-full bg-primary-foreground p-0.5 flex items-center justify-center">
+                  <img src={zcuLogo} alt="ZCU" className="w-full h-full object-contain" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-primary-foreground">ZUCIA</p>
+                  <p className="text-sm font-semibold text-primary-foreground">ZCU ChatBot</p>
                   <p className="text-[10px] text-primary-foreground/70">Online</p>
                 </div>
               </div>
@@ -123,7 +124,7 @@ const ChatDrawer = () => {
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask ZUCIA..."
+                placeholder="Ask ZCU ChatBot..."
                 className="flex-1 px-3 py-2 rounded-lg border border-input bg-background text-sm focus:ring-2 focus:ring-ring focus:outline-none"
               />
               <button type="submit" disabled={!input.trim()} className="p-2 rounded-lg bg-primary text-primary-foreground disabled:opacity-40 transition-all">

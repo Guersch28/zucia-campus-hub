@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Eye, EyeOff, GraduationCap, BookOpen, Sparkles, ShieldCheck } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
+import { Eye, EyeOff, GraduationCap, BookOpen, Sparkles, ShieldCheck, Moon, Sun } from "lucide-react";
 import { motion } from "framer-motion";
+import zcuLogo from "@/assets/zcu-logo.png";
 
 const LoginPage = () => {
   const [role, setRole] = useState<"student" | "lecturer">("student");
@@ -12,6 +14,7 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const { theme, toggle } = useTheme();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,7 +35,16 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex relative">
+      {/* Theme toggle (top right) */}
+      <button
+        onClick={toggle}
+        aria-label="Toggle theme"
+        className="absolute top-4 right-4 z-20 p-2 rounded-lg border border-border bg-card/80 backdrop-blur hover:bg-muted text-foreground transition-all"
+      >
+        {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      </button>
+
       {/* Left brand panel */}
       <div className="hidden lg:flex lg:w-1/2 zcu-hero-gradient relative overflow-hidden">
         <div className="relative z-10 flex flex-col justify-center px-16 py-12">
@@ -41,20 +53,20 @@ const LoginPage = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent text-accent-foreground mb-8 font-bold text-xl shadow-lg shadow-accent/30">
-              ZCU
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-primary-foreground p-2 mb-8 shadow-2xl shadow-black/30">
+              <img src={zcuLogo} alt="ZCU coat of arms" className="w-full h-full object-contain" />
             </div>
 
             <h1 className="text-5xl text-primary-foreground leading-tight mb-3">
-              Zambia Catholic<br />University
+              ZCU ChatBot
             </h1>
-            <p className="text-primary-foreground/60 text-base mb-12">
-              Veritas et Lux · Truth and Light
+            <p className="text-primary-foreground/70 text-base italic mb-12">
+              Veritas Vos Liberabit · The Truth Will Set You Free
             </p>
 
             <div className="space-y-5 max-w-sm">
               {[
-                { icon: Sparkles, title: "ZUCIA Assistant", desc: "AI-powered answers about the university" },
+                { icon: Sparkles, title: "ZCU ChatBot", desc: "AI-powered answers about the university" },
                 { icon: BookOpen, title: "Course Materials", desc: "Browse, download and chat with PDFs" },
                 { icon: ShieldCheck, title: "Role-based Access", desc: "Tailored experience for students & lecturers" },
               ].map((f) => (
@@ -64,7 +76,7 @@ const LoginPage = () => {
                   </div>
                   <div>
                     <p className="text-primary-foreground font-semibold text-sm">{f.title}</p>
-                    <p className="text-primary-foreground/50 text-xs">{f.desc}</p>
+                    <p className="text-primary-foreground/60 text-xs">{f.desc}</p>
                   </div>
                 </div>
               ))}
@@ -82,16 +94,17 @@ const LoginPage = () => {
           className="w-full max-w-md"
         >
           <div className="lg:hidden text-center mb-8">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl zcu-gradient text-primary-foreground font-bold mb-3">
-              ZCU
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-card border border-border p-2 mb-3 shadow-lg">
+              <img src={zcuLogo} alt="ZCU" className="w-full h-full object-contain" />
             </div>
-            <h1 className="text-xl font-bold text-foreground">Zambia Catholic University</h1>
+            <h1 className="text-xl font-bold text-foreground">ZCU ChatBot</h1>
+            <p className="text-xs text-muted-foreground italic">Veritas Vos Liberabit</p>
           </div>
 
           <div className="mb-8">
             <h2 className="text-3xl text-foreground">Welcome back</h2>
             <p className="text-muted-foreground text-sm mt-2">
-              Sign in to <span className="text-foreground font-semibold">ZUCIA</span> to continue
+              Sign in to the <span className="text-foreground font-semibold">ZCU ChatBot</span> to continue
             </p>
           </div>
 
@@ -157,7 +170,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-primary/15"
+              className="w-full py-3.5 rounded-xl zcu-gradient text-primary-foreground font-semibold hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-primary/25"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
