@@ -63,7 +63,7 @@ const ChatbotPage = () => {
           id: `e-${Date.now()}`,
           role: "bot",
           content:
-            "I couldn't reach the ZUCIA service. Please verify the backend is running and try again.\n\n" +
+            "I couldn't reach the ZCU ChatBot service. Please verify the backend is running and try again.\n\n" +
             (err instanceof Error ? `(${err.message})` : ""),
           source: "Error",
           timestamp: Date.now(),
@@ -85,12 +85,12 @@ const ChatbotPage = () => {
 
       <div className="flex items-center justify-between px-4 md:px-8 py-3 border-b border-border bg-card">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-accent text-accent-foreground flex items-center justify-center font-bold">
-            Z
+          <div className="w-11 h-11 rounded-xl bg-background p-1 border border-border flex items-center justify-center">
+            <img src={new URL('@/assets/zcu-logo.png', import.meta.url).href} alt="ZCU" className="w-full h-full object-contain" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-foreground">ZUCIA</h1>
-            <p className="text-xs text-muted-foreground">ZCU Intelligent Campus Assistant</p>
+            <h1 className="text-lg font-semibold text-foreground">ZCU ChatBot</h1>
+            <p className="text-xs text-muted-foreground">Veritas Vos Liberabit · Campus Assistant</p>
           </div>
         </div>
         <button
@@ -165,7 +165,7 @@ const ChatbotPage = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask ZUCIA anything about ZCU…"
+            placeholder="Ask the ZCU ChatBot anything…"
             disabled={isTyping}
             className="flex-1 px-4 py-3 rounded-xl border border-input bg-background text-sm focus:ring-2 focus:ring-ring focus:outline-none disabled:opacity-60"
           />
