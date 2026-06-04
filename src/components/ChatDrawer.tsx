@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { matchZcuKeyword } from "@/constants/zcuData";
 import { MessageCircle, X, Send, Minimize2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import zcuLogo from "@/assets/zcu-logo.png";
 
 interface ChatMsg {
   id: string;
@@ -79,7 +80,7 @@ const ChatDrawer = () => {
             <div className="zcu-gradient p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-full bg-primary-foreground p-0.5 flex items-center justify-center">
-                  <img src={(new URL('@/assets/zcu-logo.png', import.meta.url)).href} alt="ZCU" className="w-full h-full object-contain" />
+                  <img src={zcuLogo} alt="ZCU" className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-primary-foreground">ZCU ChatBot</p>
