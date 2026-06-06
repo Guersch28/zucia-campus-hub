@@ -172,6 +172,49 @@ export const mockFiles = {
         `learning objectives. For a precise answer, please refer to the chapter or run the real backend for AI-powered analysis.`,
     };
   },
+  generateQA(id: string, type: "mcq" | "short" | "tf", count = 5) {
+    const file = read<CourseFile[]>(FILES_KEY, []).find((f) => f.id === id);
+    const base = (file?.filename ?? "this document").replace(/\.pdf$/i, "");
+    const topics = [
+      "core concepts", "key definitions", "practical examples",
+      "learning objectives", "case studies", "terminology",
+      "frameworks", "exercises", "assessment criteria",
+    ];
+    const pick = (i: number) => topics[(i * 3) % topics.length];
+    const items = Array.from({ length: count }, (_, i) => {
+      if (type === "mcq") {
+        return {
+          id: `q-${i}`,
+          type,
+          question: `Which of the following best describes the ${pick(i)} in "${base}"?`,
+          options: [
+            `A foundational element of the module`,
+            `An unrelated tangent`,
+            `An optional appendix only`,
+            `A deprecated approach`,
+          ],
+          answer: `A foundational element of the module`,
+          explanation: `Per the document, ${pick(i)} are introduced as foundational to the learning outcomes.`,
+        };
+      }
+      if (type === "tf") {
+        return {
+          id: `q-${i}`,
+          type,
+          question: `True or False: "${base}" emphasizes ${pick(i)} as part of its core curriculum.`,
+          answer: i % 2 === 0 ? "True" : "False",
+          explanation: `The document ${i % 2 === 0 ? "explicitly covers" : "does not focus on"} ${pick(i)}.`,
+        };
+      }
+      return {
+        id: `q-${i}`,
+        type,
+        question: `Briefly explain the role of ${pick(i)} as presented in "${base}".`,
+        answer: `${pick(i)} are presented to support the learner in achieving the module's outcomes through structured examples and reflection.`,
+      };
+    });
+    return { questions: items };
+  },
 };
 
 /* ---------------- PDF chat ---------------- */
