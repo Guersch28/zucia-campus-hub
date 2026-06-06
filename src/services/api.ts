@@ -197,7 +197,30 @@ export const filesApi = {
         }),
       () => mockFiles.ask(fileId, question),
     ),
+
+  generateQA: (
+    fileId: string,
+    type: "mcq" | "short" | "tf",
+    count = 5,
+  ): Promise<{ questions: QAQuestion[] }> =>
+    withMock(
+      () =>
+        request<{ questions: QAQuestion[] }>("/generate-qa", {
+          method: "POST",
+          body: JSON.stringify({ file_id: fileId, type, count }),
+        }),
+      () => mockFiles.generateQA(fileId, type, count) as { questions: QAQuestion[] },
+    ),
 };
+
+export interface QAQuestion {
+  id: string;
+  type: "mcq" | "short" | "tf";
+  question: string;
+  options?: string[];
+  answer: string;
+  explanation?: string;
+}
 
 /* ------------------------------------------------------------------ */
 /*  PDF Chat                                                          */

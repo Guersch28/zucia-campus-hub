@@ -38,6 +38,16 @@ const ChatbotPage = () => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    const onNewChat = () => {
+      setMessages([]);
+      setInput("");
+      localStorage.removeItem(STORAGE_KEY);
+    };
+    window.addEventListener("zcu:new-chat", onNewChat);
+    return () => window.removeEventListener("zcu:new-chat", onNewChat);
+  }, []);
+
   const sendMessage = async (text: string) => {
     const q = text.trim();
     if (!q || isTyping) return;
