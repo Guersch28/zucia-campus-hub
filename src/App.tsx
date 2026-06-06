@@ -7,6 +7,7 @@ import StudentDashboard from "@/pages/StudentDashboard";
 import LecturerDashboard from "@/pages/LecturerDashboard";
 import ChatbotPage from "@/pages/ChatbotPage";
 import ConversationHistory from "@/pages/ConversationHistory";
+import LibraryPage from "@/pages/LibraryPage";
 import ProtectedLayout from "@/components/ProtectedLayout";
 import MockModeBanner from "@/components/MockModeBanner";
 import NotFound from "@/pages/NotFound";
@@ -34,6 +35,7 @@ const App = () => (
           <Route element={<ProtectedLayout />}>
             <Route path="/chatbot" element={<ChatbotPage />} />
             <Route path="/history" element={<ConversationHistory />} />
+            <Route path="/library" element={<LibraryPage />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

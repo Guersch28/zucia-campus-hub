@@ -1,9 +1,11 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  Home, BookOpen, MessageCircle, LogOut, Menu, X, GraduationCap, UserCog, History,
+  Home, BookOpen, MessageCircle, LogOut, Menu, X, GraduationCap, UserCog,
+  History, Plus, Library,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 import zcuLogo from "@/assets/zcu-logo.png";
 
 const Sidebar = () => {
@@ -17,11 +19,13 @@ const Sidebar = () => {
   const links = isStudent
     ? [
         { to: "/student", label: "Materials", icon: BookOpen },
+        { to: "/library", label: "Library", icon: Library },
         { to: "/chatbot", label: "ZCU ChatBot", icon: MessageCircle },
         { to: "/history", label: "History", icon: History },
       ]
     : [
         { to: "/lecturer", label: "Dashboard", icon: Home },
+        { to: "/library", label: "Library", icon: Library },
         { to: "/chatbot", label: "ZCU ChatBot", icon: MessageCircle },
         { to: "/history", label: "History", icon: History },
       ];
@@ -30,6 +34,13 @@ const Sidebar = () => {
     logout();
     setMobileOpen(false);
     navigate("/login", { replace: true });
+  };
+
+  const handleNewChat = () => {
+    window.dispatchEvent(new CustomEvent("zcu:new-chat"));
+    setMobileOpen(false);
+    navigate("/chatbot");
+    toast({ title: "New conversation started", description: "Fresh ZCU ChatBot session ready." });
   };
 
   const nav = (
@@ -46,6 +57,18 @@ const Sidebar = () => {
           </div>
         </div>
       </div>
+
+      {/* New Chat (student) */}
+      {isStudent && (
+        <div className="px-4 pt-4">
+          <button
+            onClick={handleNewChat}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-sidebar-primary text-sidebar-primary-foreground text-sm font-semibold shadow-md shadow-sidebar-primary/25 hover:brightness-110 transition-all"
+          >
+            <Plus className="w-4 h-4" /> New Chat
+          </button>
+        </div>
+      )}
 
       {/* Role Badge */}
       <div className="px-4 py-4">
